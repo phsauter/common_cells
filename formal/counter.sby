@@ -1,17 +1,35 @@
+# Copyright 2026 ETH Zurich and University of Bologna.
+# Copyright and related rights are licensed under the Solderpad Hardware
+# License, Version 0.51 (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+# or agreed to in writing, software and materials distributed under this
+# License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
+# Proof and bounded-cover configuration for cc_counter widths 1 through 8
+# and both overflow modes.
+
+[tasks]
+prove
+cover
+
 [options]
-mode prove
-depth 100
+prove: mode prove
+prove: depth 40
+cover: mode cover
+cover: depth 16
 
 [engines]
 smtbmc
 
 [script]
-read -formal cc_delta_counter.sv
-read -formal cc_counter.sv
-read -formal cc_counter_properties.sv
-prep -top cc_counter
+plugin -i slang.so
+read_slang --std 1800-2017 --top cc_counter_formal -F formal.flist
+prep -top cc_counter_formal
+async2sync
+dffunmap
 
 [files]
-cc_counter_properties.sv
-../src/cc_counter.sv
-../src/cc_delta_counter.sv
+build/formal.flist
